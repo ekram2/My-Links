@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Important Links</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #9c27b0;
+            --secondary-color: #7b1fa2;
+            --accent-color: #e91e63;
+            --background-color: #121212;
+            --card-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-light: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            font-family: 'Playfair Display', serif;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-light);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="30" font-family="Dancing Script" font-size="20" fill="rgba(255,255,255,0.05)">★</text></svg>');
+            opacity: 0.3;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            font-family: 'Dancing Script', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .add-link-form {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.3);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .link-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .link-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .link-card h3 {
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+        }
+
+        .link-card a {
+            display: inline-block;
+            color: var(--text-color);
+            text-decoration: none;
+            word-break: break-all;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .link-card a:hover {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .link-card .date {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .link-card .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .link-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 40px;
+            color: rgba(255, 255, 255, 0.5);
+            grid-column: 1 / -1;
+            font-style: italic;
+            font-size: 1.2rem;
+        }
+
+        .empty-state h3 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .links-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-link-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>My Important Links</h1>
+            <p>Save and organize your precious web resources</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="add-link-form">
+            <h2>Add New Link</h2>
+            <form id="linkForm">
+                <div class="form-group">
+                    <label for="linkTitle">Title</label>
+                    <input type="text" id="linkTitle" placeholder="Enter link title" required>
+                </div>
+                <div class="form-group">
+                    <label for="linkUrl">URL</label>
+                    <input type="text" id="linkUrl" placeholder="example.com" required>
+                </div>
+                <button type="submit">Add Link</button>
+            </form>
+        </div>
+
+        <div class="links-container" id="linksContainer">
+            <!-- Links will be added here dynamically -->
+            <div class="empty-state" id="emptyState">
+                <h3>No links added yet</h3>
+                <p>Your collection of important links will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const linkForm = document.getElementById('linkForm');
+            const linksContainer = document.getElementById('linksContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Load links from localStorage
+            let links = JSON.parse(localStorage.getItem('importantLinks')) || [];
+            
+            // Display existing links
+            renderLinks(links);
+            
+            // Form submission
+            linkForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('linkTitle').value;
+                const rawUrl = document.getElementById('linkUrl').value.trim();
+                
+                // Validate and format URL
+                let properUrl = rawUrl;
+                if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+                    properUrl = 'https://' + rawUrl;
+                }
+                
+                // Create link object
+                const newLink = {
+                    id: Date.now(),
+                    title: title,
+                    url: properUrl,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add to array
+                links.push(newLink);
+                
+                // Save to localStorage
+                localStorage.setItem('importantLinks', JSON.stringify(links));
+                
+                // Render links
+                renderLinks(links);
+                
+                // Reset form
+                linkForm.reset();
+            });
+            
+            // Render links function
+            function renderLinks(linksToRender) {
+                if (linksToRender.length === 0) {
+                    emptyState.style.display = 'block';
+                    linksContainer.innerHTML = '';
+                    linksContainer.appendChild(emptyState);
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                linksContainer.innerHTML = '';
+                
+                linksToRender.forEach(link => {
+                    const linkCard = document.createElement('div');
+                    linkCard.className = 'link-card';
+                    linkCard.innerHTML = `
+                        <button class="delete-btn" data-id="${link.id}">×</button>
+                        <h3>${link.title}</h3>
+                        <a href="${link.url}" target="_blank">${link.url}</a>
+                        <p class="date">Added: ${new Date(link.createdAt).toLocaleDateString()}</p>
+                    `;
+                    linksContainer.appendChild(linkCard);
+                });
+                
+                // Add delete event listeners
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.getAttribute('data-id'));
+                        links = links.filter(link => link.id !== id);
+                        localStorage.setItem('importantLinks', JSON.stringify(links));
+                        renderLinks(links);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
