@@ -1,369 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Important Links</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #9c27b0;
-            --secondary-color: #7b1fa2;
-            --accent-color: #e91e63;
-            --background-color: #121212;
-            --card-color: #1e1e1e;
-            --text-color: #e0e0e0;
-            --text-light: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
-            font-family: 'Playfair Display', serif;
-            min-height: 100vh;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px 0;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: var(--text-light);
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="30" font-family="Dancing Script" font-size="20" fill="rgba(255,255,255,0.05)">★</text></svg>');
-            opacity: 0.3;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            font-family: 'Dancing Script', cursive;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
-
-        h2 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2.2rem;
-            margin-bottom: 20px;
-            color: var(--accent-color);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .add-link-form {
-            background-color: var(--card-color);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            margin-bottom: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--text-color);
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.3);
-        }
-
-        button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            font-family: 'Playfair Display', serif;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .links-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .link-card {
-            background-color: var(--card-color);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-        }
-
-        .link-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
-        }
-
-        .link-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .link-card h3 {
-            margin-bottom: 15px;
-            color: var(--accent-color);
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
-        }
-
-        .link-card a {
-            display: inline-block;
-            color: var(--text-color);
-            text-decoration: none;
-            word-break: break-all;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
-            padding-bottom: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .link-card a:hover {
-            color: var(--accent-color);
-            border-bottom-color: var(--accent-color);
-        }
-
-        .link-card .date {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-        }
-
-        .link-card .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background-color: #ff4444;
-            color: white;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .link-card:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-            color: rgba(255, 255, 255, 0.5);
-            grid-column: 1 / -1;
-            font-style: italic;
-            font-size: 1.2rem;
-        }
-
-        .empty-state h3 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 2rem;
-            margin-bottom: 15px;
-            color: var(--accent-color);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .links-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .add-link-form {
-                padding: 20px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>📎 Fancy Link Manager + Google Sign-In</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      color: #f5c518;
+    }
+    .section {
+      margin: 1rem 0;
+      border-left: 4px solid #444;
+      padding-left: 1rem;
+    }
+    .section-title {
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: text;
+      margin-bottom: 0.5rem;
+      outline: none;
+    }
+    .link-item {
+      background: #2b2b2b;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      cursor: grab;
+      gap: 0.5rem;
+    }
+    .link-item img {
+      width: 16px;
+      height: 16px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    button {
+      background: #f5c518;
+      color: #000;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input[type="url"] {
+      padding: 0.4rem;
+      width: 240px;
+      border-radius: 4px;
+      border: none;
+    }
+    #userInfo {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>My Important Links</h1>
-            <p>Save and organize your precious web resources</p>
-        </div>
-    </header>
 
-    <div class="container">
-        <div class="add-link-form">
-            <h2>Add New Link</h2>
-            <form id="linkForm">
-                <div class="form-group">
-                    <label for="linkTitle">Title</label>
-                    <input type="text" id="linkTitle" placeholder="Enter link title" required>
-                </div>
-                <div class="form-group">
-                    <label for="linkUrl">URL</label>
-                    <input type="text" id="linkUrl" placeholder="example.com" required>
-                </div>
-                <button type="submit">Add Link</button>
-            </form>
-        </div>
+  <h1>📎 Fancy Link Manager</h1>
+  <div id="userInfo">🔒 Not signed in</div>
+  <div id="container"></div>
 
-        <div class="links-container" id="linksContainer">
-            <!-- Links will be added here dynamically -->
-            <div class="empty-state" id="emptyState">
-                <h3>No links added yet</h3>
-                <p>Your collection of important links will appear here</p>
-            </div>
-        </div>
-    </div>
+  <div class="controls">
+    <input id="newLink" placeholder="https://example.com" type="url">
+    <button onclick="addLink()">➕ Add Link</button>
+    <button onclick="addHeading()">📁 Add Heading</button>
+    <button onclick="saveToDrive()">💾 Save</button>
+    <button onclick="loadFromDrive()">🔁 Load</button>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const linkForm = document.getElementById('linkForm');
-            const linksContainer = document.getElementById('linksContainer');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Load links from localStorage
-            let links = JSON.parse(localStorage.getItem('importantLinks')) || [];
-            
-            // Display existing links
-            renderLinks(links);
-            
-            // Form submission
-            linkForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('linkTitle').value;
-                const rawUrl = document.getElementById('linkUrl').value.trim();
-                
-                // Validate and format URL
-                let properUrl = rawUrl;
-                if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
-                    properUrl = 'https://' + rawUrl;
-                }
-                
-                // Create link object
-                const newLink = {
-                    id: Date.now(),
-                    title: title,
-                    url: properUrl,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // Add to array
-                links.push(newLink);
-                
-                // Save to localStorage
-                localStorage.setItem('importantLinks', JSON.stringify(links));
-                
-                // Render links
-                renderLinks(links);
-                
-                // Reset form
-                linkForm.reset();
-            });
-            
-            // Render links function
-            function renderLinks(linksToRender) {
-                if (linksToRender.length === 0) {
-                    emptyState.style.display = 'block';
-                    linksContainer.innerHTML = '';
-                    linksContainer.appendChild(emptyState);
-                    return;
-                }
-                
-                emptyState.style.display = 'none';
-                linksContainer.innerHTML = '';
-                
-                linksToRender.forEach(link => {
-                    const linkCard = document.createElement('div');
-                    linkCard.className = 'link-card';
-                    linkCard.innerHTML = `
-                        <button class="delete-btn" data-id="${link.id}">×</button>
-                        <h3>${link.title}</h3>
-                        <a href="${link.url}" target="_blank">${link.url}</a>
-                        <p class="date">Added: ${new Date(link.createdAt).toLocaleDateString()}</p>
-                    `;
-                    linksContainer.appendChild(linkCard);
-                });
-                
-                // Add delete event listeners
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = parseInt(this.getAttribute('data-id'));
-                        links = links.filter(link => link.id !== id);
-                        localStorage.setItem('importantLinks', JSON.stringify(links));
-                        renderLinks(links);
-                    });
-                });
-            }
-        });
-    </script>
+  <div id="g_id_onload"
+       data-client_id="844655246605-5jgg0vg58m3fp57ej8ucf2po571h12b4.apps.googleusercontent.com"
+       data-context="signin"
+       data-callback="handleSignIn"
+       data-auto_prompt="false">
+  </div>
+
+  <div class="g_id_signin"
+       data-type="standard"
+       data-shape="pill"
+       data-theme="outline"
+       data-text="sign_in_with"
+       data-size="large">
+  </div>
+
+  <script>
+    const container = document.getElementById('container');
+    const userInfo = document.getElementById('userInfo');
+    const SCRIPT_URL = "https://script.google.com/macros/library/d/1twqpEsMwcjrmJRiPjqEwlpM9J9lDRa2ToV5yD_MGC022WzOPkGaQHuLu/1"; // << Replace this
+
+    let userEmail = "";
+
+    function createFavicon(url) {
+      try {
+        const domain = new URL(url).hostname;
+        return `https://www.google.com/s2/favicons?sz=32&domain=${domain}`;
+      } catch {
+        return '';
+      }
+    }
+
+    function createLinkItem(url) {
+      const item = document.createElement('div');
+      item.className = 'link-item';
+      item.draggable = true;
+      item.innerHTML = `
+        <img src="${createFavicon(url)}">
+        <a href="${url}" target="_blank" style="color:white;">${url}</a>
+        <button onclick="this.parentElement.remove()">❌</button>
+      `;
+      addDragEvents(item);
+      return item;
+    }
+
+    function createHeading(title = "Untitled Section") {
+      const section = document.createElement('div');
+      section.className = 'section';
+
+      const editableTitle = document.createElement('div');
+      editableTitle.className = 'section-title';
+      editableTitle.contentEditable = true;
+      editableTitle.innerText = title;
+
+      section.appendChild(editableTitle);
+      container.appendChild(section);
+    }
+
+    function addLink() {
+      const url = document.getElementById('newLink').value;
+      if (!url) return;
+      const lastSection = container.lastElementChild || createHeading('Links');
+      if (!lastSection.classList.contains('section')) createHeading('Links');
+      lastSection.appendChild(createLinkItem(url));
+      document.getElementById('newLink').value = '';
+    }
+
+    function addHeading() {
+      createHeading();
+    }
+
+    function exportJSON() {
+      const data = [];
+      container.querySelectorAll('.section').forEach(section => {
+        const title = section.querySelector('.section-title').innerText;
+        const links = [...section.querySelectorAll('.link-item a')].map(a => a.href);
+        data.push({ title, links });
+      });
+      return JSON.stringify(data);
+    }
+
+    function importJSON(json) {
+      container.innerHTML = '';
+      JSON.parse(json).forEach(sectionData => {
+        createHeading(sectionData.title);
+        const section = container.lastElementChild;
+        sectionData.links.forEach(link => section.appendChild(createLinkItem(link)));
+      });
+    }
+
+    function addDragEvents(item) {
+      item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', null);
+        item.classList.add('dragging');
+      });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    }
+
+    container.addEventListener('dragover', e => {
+      e.preventDefault();
+      const dragging = document.querySelector('.dragging');
+      const after = [...container.querySelectorAll('.link-item')].find(el => e.clientY < el.getBoundingClientRect().top + el.offsetHeight / 2);
+      const parent = dragging?.closest('.section');
+      if (parent) parent.insertBefore(dragging, after);
+    });
+
+    // Google Drive Sync
+    async function saveToDrive() {
+      if (!userEmail) return alert("Please sign in first.");
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ mode: 'save', data: exportJSON(), email: userEmail }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      alert("✅ Saved to Drive");
+    }
+
+    async function loadFromDrive() {
+      if (!userEmail) return alert("Please sign in first.");
+      const response = await fetch(`${SCRIPT_URL}?mode=load&email=${encodeURIComponent(userEmail)}`);
+      const text = await response.text();
+      if (text) importJSON(text);
+      else alert("⚠️ No data found.");
+    }
+
+    // Google Sign-In
+    function handleSignIn(response) {
+      const decoded = parseJwt(response.credential);
+      userEmail = decoded.email;
+      userInfo.innerHTML = `👤 Signed in as <b>${decoded.name}</b> (${userEmail})`;
+    }
+
+    function parseJwt(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+    }
+  </script>
+
 </body>
 </html>
