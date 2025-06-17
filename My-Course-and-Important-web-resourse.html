@@ -2,226 +2,116 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>📎 Fancy Link Manager + Google Sign-In</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background: #121212;
-      color: #eee;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 1rem;
-    }
-    h1 {
-      text-align: center;
-      color: #f5c518;
-    }
-    .section {
-      margin: 1rem 0;
-      border-left: 4px solid #444;
-      padding-left: 1rem;
-    }
-    .section-title {
-      font-weight: bold;
-      font-size: 1.2rem;
-      cursor: text;
-      margin-bottom: 0.5rem;
-      outline: none;
-    }
-    .link-item {
-      background: #2b2b2b;
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      display: flex;
-      align-items: center;
-      border-radius: 8px;
-      cursor: grab;
-      gap: 0.5rem;
-    }
-    .link-item img {
-      width: 16px;
-      height: 16px;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    button {
-      background: #f5c518;
-      color: #000;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    input[type="url"] {
-      padding: 0.4rem;
-      width: 240px;
-      border-radius: 4px;
-      border: none;
-    }
-    #userInfo {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
-  </style>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
-<body>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fancy Link Manager</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <h1>📎 Fancy Link Manager</h1>
-  <div id="userInfo">🔒 Not signed in</div>
-  <div id="container"></div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAN2qRU0gKNNRbsQ1LX688WRHiWP-vQ2hk",
+      authDomain: "link-manager-71f12.firebaseapp.com",
+      projectId: "link-manager-71f12",
+      storageBucket: "link-manager-71f12.firebasestorage.app",
+      messagingSenderId: "950228225273",
+      appId: "1:950228225273:web:33fc9a192460810d032628"
+    };
 
-  <div class="controls">
-    <input id="newLink" placeholder="https://example.com" type="url">
-    <button onclick="addLink()">➕ Add Link</button>
-    <button onclick="addHeading()">📁 Add Heading</button>
-    <button onclick="saveToDrive()">💾 Save</button>
-    <button onclick="loadFromDrive()">🔁 Load</button>
-  </div>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  <div id="g_id_onload"
-       data-client_id="844655246605-5jgg0vg58m3fp57ej8ucf2po571h12b4.apps.googleusercontent.com"
-       data-context="signin"
-       data-callback="handleSignIn"
-       data-auto_prompt="false">
-  </div>
+    const linkForm = document.getElementById('linkForm');
+    const headingForm = document.getElementById('headingForm');
+    const linkList = document.getElementById('linkList');
 
-  <div class="g_id_signin"
-       data-type="standard"
-       data-shape="pill"
-       data-theme="outline"
-       data-text="sign_in_with"
-       data-size="large">
-  </div>
+    async function fetchLinks() {
+      linkList.innerHTML = '';
+      const snapshot = await getDocs(collection(db, "links"));
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  <script>
-    const container = document.getElementById('container');
-    const userInfo = document.getElementById('userInfo');
-    const SCRIPT_URL = "https://script.google.com/macros/library/d/1twqpEsMwcjrmJRiPjqEwlpM9J9lDRa2ToV5yD_MGC022WzOPkGaQHuLu/1"; // << Replace this
+      docs.sort((a, b) => a.order - b.order);
 
-    let userEmail = "";
+      docs.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.setAttribute('data-id', item.id);
 
-    function createFavicon(url) {
-      try {
-        const domain = new URL(url).hostname;
-        return `https://www.google.com/s2/favicons?sz=32&domain=${domain}`;
-      } catch {
-        return '';
-      }
-    }
+        if (item.type === 'heading') {
+          div.className = 'heading-item';
+          div.textContent = item.text;
+        } else {
+          div.className = 'link-item';
+          div.innerHTML = `<strong>${item.title}</strong><a href="${item.url}" target="_blank">${item.url}</a>`;
+        }
 
-    function createLinkItem(url) {
-      const item = document.createElement('div');
-      item.className = 'link-item';
-      item.draggable = true;
-      item.innerHTML = `
-        <img src="${createFavicon(url)}">
-        <a href="${url}" target="_blank" style="color:white;">${url}</a>
-        <button onclick="this.parentElement.remove()">❌</button>
-      `;
-      addDragEvents(item);
-      return item;
-    }
+        const btn = document.createElement('button');
+        btn.className = 'delete-btn';
+        btn.textContent = '×';
+        btn.onclick = async () => {
+          await deleteDoc(doc(db, "links", item.id));
+          fetchLinks();
+        };
 
-    function createHeading(title = "Untitled Section") {
-      const section = document.createElement('div');
-      section.className = 'section';
-
-      const editableTitle = document.createElement('div');
-      editableTitle.className = 'section-title';
-      editableTitle.contentEditable = true;
-      editableTitle.innerText = title;
-
-      section.appendChild(editableTitle);
-      container.appendChild(section);
-    }
-
-    function addLink() {
-      const url = document.getElementById('newLink').value;
-      if (!url) return;
-      const lastSection = container.lastElementChild || createHeading('Links');
-      if (!lastSection.classList.contains('section')) createHeading('Links');
-      lastSection.appendChild(createLinkItem(url));
-      document.getElementById('newLink').value = '';
-    }
-
-    function addHeading() {
-      createHeading();
-    }
-
-    function exportJSON() {
-      const data = [];
-      container.querySelectorAll('.section').forEach(section => {
-        const title = section.querySelector('.section-title').innerText;
-        const links = [...section.querySelectorAll('.link-item a')].map(a => a.href);
-        data.push({ title, links });
-      });
-      return JSON.stringify(data);
-    }
-
-    function importJSON(json) {
-      container.innerHTML = '';
-      JSON.parse(json).forEach(sectionData => {
-        createHeading(sectionData.title);
-        const section = container.lastElementChild;
-        sectionData.links.forEach(link => section.appendChild(createLinkItem(link)));
+        div.appendChild(btn);
+        linkList.appendChild(div);
       });
     }
 
-    function addDragEvents(item) {
-      item.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', null);
-        item.classList.add('dragging');
-      });
-      item.addEventListener('dragend', () => item.classList.remove('dragging'));
-    }
-
-    container.addEventListener('dragover', e => {
+    linkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      const after = [...container.querySelectorAll('.link-item')].find(el => e.clientY < el.getBoundingClientRect().top + el.offsetHeight / 2);
-      const parent = dragging?.closest('.section');
-      if (parent) parent.insertBefore(dragging, after);
+      const title = document.getElementById('linkTitle').value.trim();
+      let url = document.getElementById('linkUrl').value.trim();
+      if (!url.startsWith('http')) url = 'https://' + url;
+      await addDoc(collection(db, "links"), {
+        type: "link",
+        title,
+        url,
+        order: Date.now()
+      });
+      linkForm.reset();
+      fetchLinks();
     });
 
-    // Google Drive Sync
-    async function saveToDrive() {
-      if (!userEmail) return alert("Please sign in first.");
-      const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ mode: 'save', data: exportJSON(), email: userEmail }),
-        headers: { 'Content-Type': 'application/json' }
+    headingForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('headingText').value.trim();
+      await addDoc(collection(db, "links"), {
+        type: "heading",
+        text,
+        order: Date.now()
       });
-      alert("✅ Saved to Drive");
-    }
+      headingForm.reset();
+      fetchLinks();
+    });
 
-    async function loadFromDrive() {
-      if (!userEmail) return alert("Please sign in first.");
-      const response = await fetch(`${SCRIPT_URL}?mode=load&email=${encodeURIComponent(userEmail)}`);
-      const text = await response.text();
-      if (text) importJSON(text);
-      else alert("⚠️ No data found.");
-    }
-
-    // Google Sign-In
-    function handleSignIn(response) {
-      const decoded = parseJwt(response.credential);
-      userEmail = decoded.email;
-      userInfo.innerHTML = `👤 Signed in as <b>${decoded.name}</b> (${userEmail})`;
-    }
-
-    function parseJwt(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-    }
+    fetchLinks();
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-6">
+  <header class="text-center py-10 bg-gradient-to-r from-purple-600 to-green-500 rounded-lg shadow-lg mb-10">
+    <h1 class="text-5xl font-bold font-dancing">Fancy Link Manager</h1>
+  </header>
 
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+      <h2 class="text-2xl text-cyan-400 mb-4">Add New Link</h2>
+      <form id="linkForm" class="space-y-4">
+        <input id="linkTitle" type="text" placeholder="Link Title" required class="w-full p-3 rounded bg-gray-700 text-white border border-gray-600">
+        <input id="linkUrl" type="text" placeholder="example.com" required class="w-full p-3 rounded bg-gray-700 text-white border border-gray-600">
+        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 rounded text-white">Add Link</button>
+      </form>
+    </div>
+
+    <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+      <h2 class="text-2xl text-pink-400 mb-4">Add Section Heading</h2>
+      <form id="headingForm" class="space-y-4">
+        <input id="headingText" type="text" placeholder="e.g. Work, Projects, Learning" required class="w-full p-3 rounded bg-gray-700 text-white border border-gray-600">
+        <button type="submit" class="bg-pink-500 hover:bg-pink-600 px-6 py-2 rounded text-white">Add Heading</button>
+      </form>
+    </div>
+
+    <div id="linkList" class="space-y-4"></div>
+  </div>
 </body>
 </html>
