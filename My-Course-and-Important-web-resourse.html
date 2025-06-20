@@ -7,10 +7,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
+      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import {
-      getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged
+      getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -28,6 +28,7 @@
     const provider = new GoogleAuthProvider();
 
     const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
     const userDisplay = document.getElementById("userDisplay");
     const linkForm = document.getElementById('linkForm');
     const headingForm = document.getElementById('headingForm');
@@ -49,6 +50,12 @@
       }
     };
 
+    logoutBtn.onclick = async () => {
+      await signOut(auth);
+      userDisplay.innerText = "";
+      linkList.innerHTML = "";
+    };
+
     onAuthStateChanged(auth, user => {
       if (user) {
         userId = user.uid;
@@ -65,13 +72,13 @@
           const data = docSnap.data();
           const div = document.createElement('div');
           if (data.type === 'heading') {
-            div.className = 'col-span-full text-3xl font-extrabold text-yellow-400 border-b border-yellow-600 pb-2 mt-4';
+            div.className = 'text-2xl font-bold text-yellow-400 border-b border-yellow-600 pb-2 mt-4';
             div.innerHTML = `${data.text} <button class='delete-btn ml-2 text-red-500' data-id='${docSnap.id}'>×</button>`;
           } else {
             div.className = 'bg-gray-700 p-4 rounded shadow hover:bg-gray-600 transition';
             div.innerHTML = `
               <strong>${data.title}</strong><br>
-              <a href="${data.url}" target="_blank" class="underline text-blue-300">${data.url}</a>
+              <a href="#" class="text-gray-400 italic">Hidden URL</a>
               <button class='delete-btn ml-2 text-red-400' data-id='${docSnap.id}'>×</button>
             `;
           }
@@ -111,12 +118,22 @@
       const q = query(collection(db, `users/${userId}/links`));
       const snapshot = await getDocs(q);
       const exportData = snapshot.docs.map(d => d.data());
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'links.json';
-      a.click();
+
+      const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const txtBlob = new Blob([exportData.map(d => d.title).join('\n')], { type: 'text/plain' });
+
+      const jsonUrl = URL.createObjectURL(jsonBlob);
+      const txtUrl = URL.createObjectURL(txtBlob);
+
+      const jsonA = document.createElement('a');
+      jsonA.href = jsonUrl;
+      jsonA.download = 'links.json';
+      jsonA.click();
+
+      const txtA = document.createElement('a');
+      txtA.href = txtUrl;
+      txtA.download = 'titles.txt';
+      txtA.click();
     };
 
     importInput.onchange = async (e) => {
@@ -134,8 +151,9 @@
 <body class="bg-gray-900 text-white p-6">
   <header class="text-center py-6 mb-6 bg-gradient-to-r from-purple-700 to-green-500 rounded-lg shadow-lg">
     <h1 class="text-4xl font-bold font-serif">Fancy Link Manager</h1>
-    <div class="mt-2">
-      <button id="loginBtn" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded">Login with Google</button>
+    <div class="mt-2 space-x-2">
+      <button id="loginBtn" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded">Login</button>
+      <button id="logoutBtn" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded">Logout</button>
       <span id="userDisplay" class="ml-4"></span>
     </div>
   </header>
@@ -159,11 +177,11 @@
     </div>
 
     <div class="flex items-center justify-between">
-      <button id="exportBtn" class="bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded">Export JSON</button>
+      <button id="exportBtn" class="bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded">Export JSON & TXT</button>
       <input type="file" id="importInput" class="bg-gray-700 rounded px-2 py-1" />
     </div>
 
-    <div id="linkList" class="grid md:grid-cols-2 gap-4"></div>
+    <div id="linkList" class="space-y-4"></div>
   </div>
 </body>
 </html>
