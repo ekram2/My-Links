@@ -65,7 +65,7 @@
           const data = docSnap.data();
           const div = document.createElement('div');
           if (data.type === 'heading') {
-            div.className = 'text-2xl font-bold text-purple-400 border-b border-purple-700 pb-2';
+            div.className = 'col-span-full text-3xl font-extrabold text-yellow-400 border-b border-yellow-600 pb-2 mt-4';
             div.innerHTML = `${data.text} <button class='delete-btn ml-2 text-red-500' data-id='${docSnap.id}'>×</button>`;
           } else {
             div.className = 'bg-gray-700 p-4 rounded shadow hover:bg-gray-600 transition';
