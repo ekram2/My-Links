@@ -7,7 +7,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, getDocs, updateDoc 
+      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import {
       getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged
@@ -34,12 +34,8 @@
     const linkList = document.getElementById('linkList');
     const exportBtn = document.getElementById('exportBtn');
     const importInput = document.getElementById('importInput');
-    const themeToggle = document.getElementById('themeToggle');
-    const categoryFilter = document.getElementById('categoryFilter');
 
     let userId = null;
-    let docsMap = [];
-    let allLinks = [];
 
     loginBtn.onclick = async () => {
       try {
@@ -64,62 +60,23 @@
     function listenToChanges() {
       const q = query(collection(db, `users/${userId}/links`), orderBy("timestamp"));
       onSnapshot(q, snapshot => {
-        docsMap = [];
-        allLinks = [];
         linkList.innerHTML = '';
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
-          data.id = docSnap.id;
-          allLinks.push(data);
-        });
-        renderFilteredLinks();
-      });
-    }
-
-    function renderFilteredLinks() {
-      linkList.innerHTML = '';
-      docsMap = [];
-      const category = categoryFilter.value.trim().toLowerCase();
-      allLinks.filter(link => !category || (link.category || '').toLowerCase().includes(category)).forEach(data => {
-        const div = document.createElement('div');
-        div.className = `rounded-lg p-4 shadow bg-gray-800 hover:scale-[1.02] transition cursor-move`;
-        div.setAttribute('draggable', true);
-        div.dataset.id = data.id;
-        div.innerHTML = data.type === 'heading'
-          ? `<h3 class="text-xl text-green-400 font-bold mb-2">${data.text}</h3><button class='delete-btn mt-2 bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded' data-id='${data.id}'>× Delete</button>`
-          : `<div class="flex items-center space-x-2 mb-2">
-              <img src="https://www.google.com/s2/favicons?sz=32&domain_url=${data.url}" class="w-5 h-5">
-              <strong>${data.title}</strong>
-            </div>
-            <a href="${data.url}" target="_blank" class="text-blue-400 hover:underline break-words">${data.url}</a>
-            ${data.category ? `<p class='text-xs italic text-gray-400 mt-1'>Category: ${data.category}</p>` : ''}
-            <button class='delete-btn mt-2 bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded' data-id='${data.id}'>× Delete</button>`;
-        linkList.appendChild(div);
-        docsMap.push({ id: data.id, ref: div });
-      });
-      initDrag();
-    }
-
-    function initDrag() {
-      let dragged = null;
-      docsMap.forEach((item, index) => {
-        const el = item.ref;
-        el.ondragstart = () => dragged = item;
-        el.ondragover = e => e.preventDefault();
-        el.ondrop = async () => {
-          const fromIndex = docsMap.indexOf(dragged);
-          const toIndex = docsMap.indexOf(item);
-          if (fromIndex === toIndex) return;
-          const temp = docsMap[fromIndex];
-          docsMap.splice(fromIndex, 1);
-          docsMap.splice(toIndex, 0, temp);
-
-          for (let i = 0; i < docsMap.length; i++) {
-            await updateDoc(doc(db, `users/${userId}/links`, docsMap[i].id), {
-              timestamp: Date.now() + i
-            });
+          const div = document.createElement('div');
+          if (data.type === 'heading') {
+            div.className = 'text-2xl font-bold text-purple-400 border-b border-purple-700 pb-2';
+            div.innerHTML = `${data.text} <button class='delete-btn ml-2 text-red-500' data-id='${docSnap.id}'>×</button>`;
+          } else {
+            div.className = 'bg-gray-700 p-4 rounded shadow hover:bg-gray-600 transition';
+            div.innerHTML = `
+              <strong>${data.title}</strong><br>
+              <a href="${data.url}" target="_blank" class="underline text-blue-300">${data.url}</a>
+              <button class='delete-btn ml-2 text-red-400' data-id='${docSnap.id}'>×</button>
+            `;
           }
-        };
+          linkList.appendChild(div);
+        });
       });
     }
 
@@ -134,10 +91,9 @@
       e.preventDefault();
       const title = document.getElementById('linkTitle').value.trim();
       let url = document.getElementById('linkUrl').value.trim();
-      const category = document.getElementById('linkCategory').value.trim();
       if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://' + url;
       await addDoc(collection(db, `users/${userId}/links`), {
-        type: 'link', title, url, category, timestamp: Date.now()
+        type: 'link', title, url, timestamp: Date.now()
       });
       linkForm.reset();
     };
@@ -152,13 +108,14 @@
     };
 
     exportBtn.onclick = async () => {
-      const snapshot = await getDocs(query(collection(db, `users/${userId}/links`)));
+      const q = query(collection(db, `users/${userId}/links`));
+      const snapshot = await getDocs(q);
       const exportData = snapshot.docs.map(d => d.data());
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'fancy-links-backup.json';
+      a.download = 'links.json';
       a.click();
     };
 
@@ -171,36 +128,25 @@
         await addDoc(collection(db, `users/${userId}/links`), { ...item, timestamp: Date.now() });
       }
     };
-
-    themeToggle.onclick = () => {
-      document.body.classList.toggle('bg-white');
-      document.body.classList.toggle('text-black');
-      document.body.classList.toggle('bg-gray-900');
-      document.body.classList.toggle('text-white');
-    };
-
-    categoryFilter.oninput = renderFilteredLinks;
   </script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-white p-6">
   <header class="text-center py-6 mb-6 bg-gradient-to-r from-purple-700 to-green-500 rounded-lg shadow-lg">
     <h1 class="text-4xl font-bold font-serif">Fancy Link Manager</h1>
-    <div class="mt-2 space-x-2 flex flex-wrap justify-center">
+    <div class="mt-2">
       <button id="loginBtn" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded">Login with Google</button>
-      <button id="themeToggle" class="bg-gray-200 text-black font-bold py-2 px-4 rounded">Toggle Theme</button>
-      <span id="userDisplay" class="text-white text-sm mt-2"></span>
+      <span id="userDisplay" class="ml-4"></span>
     </div>
   </header>
 
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-3xl mx-auto space-y-6">
     <div class="bg-gray-800 p-4 rounded-lg shadow">
       <h2 class="text-xl font-semibold mb-2 text-yellow-400">Add New Link</h2>
       <form id="linkForm" class="space-y-2">
         <input type="text" id="linkTitle" placeholder="Link Title" required class="w-full p-2 rounded bg-gray-700">
         <input type="text" id="linkUrl" placeholder="example.com" required class="w-full p-2 rounded bg-gray-700">
-        <input type="text" id="linkCategory" placeholder="Category (optional)" class="w-full p-2 rounded bg-gray-700">
-        <button type="submit" class="bg-yellow-500 px-4 py-2 rounded text-black font-semibold w-full">Add Link</button>
+        <button type="submit" class="bg-yellow-500 px-4 py-2 rounded text-black font-semibold">Add Link</button>
       </form>
     </div>
 
@@ -208,22 +154,16 @@
       <h2 class="text-xl font-semibold mb-2 text-green-400">Add Section Heading</h2>
       <form id="headingForm" class="space-y-2">
         <input type="text" id="headingText" placeholder="e.g. Work, Projects, Learning" required class="w-full p-2 rounded bg-gray-700">
-        <button type="submit" class="bg-green-500 px-4 py-2 rounded text-black font-semibold w-full">Add Heading</button>
+        <button type="submit" class="bg-green-500 px-4 py-2 rounded text-black font-semibold">Add Heading</button>
       </form>
     </div>
 
-    <div class="flex flex-col md:flex-row items-center justify-between gap-2">
-      <div class="w-full md:w-1/2">
-        <label for="categoryFilter" class="mr-2 text-sm">Filter by Category:</label>
-        <input type="text" id="categoryFilter" placeholder="e.g. Work" class="p-2 rounded bg-gray-700 w-full">
-      </div>
-      <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-        <button id="exportBtn" class="bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded">Backup</button>
-        <input type="file" id="importInput" class="bg-gray-700 rounded px-2 py-1" />
-      </div>
+    <div class="flex items-center justify-between">
+      <button id="exportBtn" class="bg-blue-500 hover:bg-blue-400 px-4 py-2 rounded">Export JSON</button>
+      <input type="file" id="importInput" class="bg-gray-700 rounded px-2 py-1" />
     </div>
 
-    <div id="linkList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <div id="linkList" class="grid md:grid-cols-2 gap-4"></div>
   </div>
 </body>
 </html>
