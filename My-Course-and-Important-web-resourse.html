@@ -2,14 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fancy Link Manager</title>
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, updateDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #fff;
+      --accent: #e91e63;
+    }
+    body.light {
+      --bg: #f9f9f9;
+      --card: #ffffff;
+      --text: #000;
+      --accent: #0077cc;
+    }
+    body.sunset {
+      --bg: #2b1d1f;
+      --card: #472d30;
+      --text: #ffe;
+      --accent: #ff6f61;
+    }
+    body.forest {
+      --bg: #1b2e1b;
+      --card: #2e3f2e;
+      --text: #cce6cc;
+      --accent: #66bb6a;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
+      transition: background 0.4s, color 0.4s;
+    }
+    .card {
+      background-color: var(--card);
+    }
+    .accent {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <header class="mb-6 text-center">
+    <h1 class="text-4xl font-bold accent">📚 Fancy Link Manager</h1>
+    <p id="userDisplay" class="text-sm mt-2 opacity-70"></p>
+    <div class="mt-2 space-x-2">
+      <button id="loginBtn" class="bg-green-600 text-white px-4 py-1 rounded">Login</button>
+      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-1 rounded hidden">Logout</button>
+      <select id="themeSelector" class="bg-gray-700 text-white p-1 rounded">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+        <option value="sunset">Sunset</option>
+        <option value="forest">Forest</option>
+      </select>
+    </div>
+  </header>
 
+  <main class="space-y-6 max-w-3xl mx-auto">
+    <section class="card p-4 rounded shadow space-y-4">
+      <h2 class="text-xl accent font-semibold">➕ Add New Link</h2>
+      <form id="linkForm" class="grid gap-2 md:grid-cols-2">
+        <input name="title" placeholder="Title" required class="p-2 rounded bg-gray-700 text-white" />
+        <input name="url" placeholder="example.com" required class="p-2 rounded bg-gray-700 text-white" />
+        <button class="bg-blue-500 px-4 py-2 text-white rounded col-span-2">Add Link</button>
+      </form>
+    </section>
+
+    <section class="card p-4 rounded shadow space-y-4">
+      <h2 class="text-xl accent font-semibold">📂 Add Heading</h2>
+      <form id="headingForm" class="flex gap-2">
+        <input id="headingText" placeholder="Heading name" required class="flex-1 p-2 rounded bg-gray-700 text-white" />
+        <button class="bg-purple-600 px-4 py-2 text-white rounded">Add Heading</button>
+      </form>
+    </section>
+        <section class="card p-4 rounded shadow space-y-4">
+      <div class="flex flex-wrap gap-2 justify-between">
+        <div>
+          <input type="file" id="importFile" accept=".json,.txt" class="hidden" />
+          <label for="importFile" class="bg-yellow-500 px-4 py-2 rounded text-white cursor-pointer">📥 Choose File to Import</label>
+        </div>
+        <div class="space-x-2">
+          <button id="exportJsonBtn" class="bg-blue-600 px-4 py-2 rounded text-white">📤 Export JSON</button>
+          <button id="exportTxtBtn" class="bg-indigo-600 px-4 py-2 rounded text-white">📤 Export TXT</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="linkContainer" class="space-y-6">
+      <!-- Dynamic link and heading sections go here -->
+    </section>
+  </main>
+
+  <script>
+    // 🔐 Firebase Config (replace with yours)
     const firebaseConfig = {
       apiKey: "AIzaSyAN2qRU0gKNNRbsQ1LX688WRHiWP-vQ2hk",
       authDomain: "link-manager-71f12.firebaseapp.com",
@@ -18,206 +109,183 @@
       messagingSenderId: "950228225273",
       appId: "1:950228225273:web:33fc9a192460810d032628"
     };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     let userId = null;
-    let currentTheme = 'dark';
+    const container = document.getElementById("linkContainer");
 
-    // UI references
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userDisplay = document.getElementById("userDisplay");
-    const linkList = document.getElementById("linkList");
-    const linkForm = document.getElementById("linkForm");
-    const headingForm = document.getElementById("headingForm");
-    const exportBtn = document.getElementById("exportBtn");
-    const exportTxtBtn = document.getElementById("exportTxtBtn");
-    const importInput = document.getElementById("importInput");
-    const themeToggle = document.getElementById("themeToggle");
+    const renderData = async () => {
+      container.innerHTML = "";
+      const snapshot = await db.collection(`users/${userId}/links`).orderBy("order").get();
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id;
 
-    // Login / Logout
-    loginBtn.onclick = async () => {
-      try {
-        const result = await signInWithPopup(auth, provider);
-        userId = result.user.uid;
-        userDisplay.innerText = `Logged in as: ${result.user.displayName}`;
-        listenToChanges();
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    logoutBtn.onclick = async () => {
-      await signOut(auth);
-      userId = null;
-      linkList.innerHTML = "";
-      userDisplay.innerText = "Logged out";
-    };
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        userId = user.uid;
-        userDisplay.innerText = `Logged in as: ${user.displayName}`;
-        listenToChanges();
-      }
-    });
+        if (data.type === "heading") {
+          const h = document.createElement("div");
+          h.className = "text-xl font-bold mt-4 border-l-4 pl-2 border-purple-500";
+          h.innerText = data.text;
+          h.setAttribute("data-id", id);
+          h.setAttribute("data-type", "heading");
+          container.appendChild(h);
+        }
 
-    // Listen for Firestore updates
-    function listenToChanges() {
-      const q = query(collection(db, `users/${userId}/links`), orderBy("order"));
-      onSnapshot(q, snap => {
-        linkList.innerHTML = "";
-        snap.forEach(docSnap => {
-          const data = docSnap.data();
-          const div = document.createElement("div");
-          div.setAttribute("data-id", docSnap.id);
-          div.setAttribute("draggable", "true");
-          div.classList.add("draggable", "py-2", "px-3", "rounded", "shadow-md");
-
-          if (data.type === "heading") {
-            div.classList.add("font-bold", "bg-yellow-600", "text-xl", "flex", "justify-between");
-            div.innerHTML = `<span>${data.text}</span><button class="delete-btn">×</button>`;
-          } else {
-            div.classList.add("bg-gray-700");
-            div.innerHTML = `
-              <div class="flex justify-between"><b>${data.title}</b><button class="delete-btn">×</button></div>
-              <a href="${data.url}" target="_blank" onclick="trackClick('${docSnap.id}')" class="underline text-blue-400 block">${data.url}</a>
-              <small class="text-gray-400">Clicks: ${data.clicks||0}</small>`;
-          }
-          linkList.appendChild(div);
-        });
-        enableDrag();
+        if (data.type === "link") {
+          const card = document.createElement("div");
+          card.className = "card p-4 rounded shadow";
+          card.setAttribute("data-id", id);
+          card.setAttribute("data-type", "link");
+          card.innerHTML = `
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-semibold">${data.title}</h3>
+                <a href="${data.url}" target="_blank" class="text-blue-400 underline">${data.url}</a>
+                <div class="text-xs opacity-70">Clicks: ${data.clicks || 0}</div>
+              </div>
+              <button onclick="deleteItem('${id}')" class="bg-red-600 px-2 py-1 text-white rounded">🗑</button>
+            </div>`;
+          card.querySelector("a").onclick = () => {
+            db.collection(`users/${userId}/links`).doc(id).update({
+              clicks: (data.clicks || 0) + 1
+            });
+          };
+          container.appendChild(card);
+        }
       });
-    }
 
-    // Track clicks
-    window.trackClick = async id => {
-      const docRef = doc(db, `users/${userId}/links`, id);
-      const docs = await getDocs(query(collection(db, `users/${userId}/links`)));
-      const data = docs.docs.find(d => d.id===id).data();
-      await updateDoc(docRef, { clicks: (data.clicks||0) + 1 });
+      applySortable(); // Reapply drag sorting
     };
 
-    // Add / Delete Items
-    document.addEventListener("click", async e => {
-      if (e.target.classList.contains("delete-btn")) {
-        const id = e.target.closest("[data-id]").getAttribute("data-id");
-        await deleteDoc(doc(db, `users/${userId}/links`, id));
-      }
-    });
-    linkForm.onsubmit = async e => {
+    const deleteItem = async id => {
+      await db.collection(`users/${userId}/links`).doc(id).delete();
+      renderData();
+    };
+
+    const applySortable = () => {
+      Sortable.create(container, {
+        animation: 150,
+        onEnd: async () => {
+          const nodes = container.querySelectorAll("[data-id]");
+          const batch = db.batch();
+          nodes.forEach((el, index) => {
+            const ref = db.collection(`users/${userId}/links`).doc(el.dataset.id);
+            batch.update(ref, { order: index });
+          });
+          await batch.commit();
+        }
+      });
+    };
+    document.getElementById("linkForm").onsubmit = async e => {
       e.preventDefault();
-      let url = linkForm.url.value.trim();
+      const title = e.target.title.value.trim();
+      let url = e.target.url.value.trim();
       if (!url.startsWith("http")) url = "https://" + url;
-      await addDoc(collection(db, `users/${userId}/links`), { type: "link", title: linkForm.title.value.trim(), url, order: Date.now(), clicks: 0 });
-      linkForm.reset();
-    };
-    headingForm.onsubmit = async e => {
-      e.preventDefault();
-      await addDoc(collection(db, `users/${userId}/links`), { type: "heading", text: headingForm.text.value.trim(), order: Date.now() });
-      headingForm.reset();
-    };
 
-    // Drag & Drop
-    function enableDrag() {
-      let dragged;
-      document.querySelectorAll("[data-id]").forEach(item => {
-        item.ondragstart = () => dragged = item;
-        item.ondragover = e => e.preventDefault();
-        item.ondrop = async e => {
-          e.preventDefault();
-          if (dragged && dragged !== item) {
-            linkList.insertBefore(dragged, item);
-            const newOrder = Array.from(linkList.children).map((el,i) => ({ id: el.getAttribute("data-id"), order: i }));
-            newOrder.forEach(x => updateDoc(doc(db, `users/${userId}/links`, x.id), { order: x.order }));
-          }
-        };
+      await db.collection(`users/${userId}/links`).add({
+        type: "link",
+        title,
+        url,
+        clicks: 0,
+        order: Date.now()
       });
-    }
+      e.target.reset();
+      renderData();
+    };
 
-    // Export / Import
-    exportBtn.onclick = async () => {
-      const snap = await getDocs(query(collection(db, `users/${userId}/links`)));
-      const blob = new Blob([JSON.stringify(snap.docs.map(d=>d.data()),null,2)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download="links.json"; a.click();
+    document.getElementById("headingForm").onsubmit = async e => {
+      e.preventDefault();
+      const text = document.getElementById("headingText").value.trim();
+      if (!text) return;
+
+      await db.collection(`users/${userId}/links`).add({
+        type: "heading",
+        text,
+        order: Date.now()
+      });
+      e.target.reset();
+      renderData();
     };
-    exportTxtBtn.onclick = async () => {
-      const snap = await getDocs(query(collection(db, `users/${userId}/links`)));
-      let txt = snap.docs.map(d => {
-        const x = d.data();
-        return x.type==="heading" ? `# ${x.text}` : `- ${x.title}: ${x.url}`;
-      }).join("\n");
-      const blob = new Blob([txt],{type:"text/plain"});
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download="links.txt"; a.click();
+
+    // Import JSON/TXT
+    document.getElementById("importFile").addEventListener("change", async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        alert("Invalid file content");
+        return;
+      }
+
+      const batch = db.batch();
+      data.forEach((item, i) => {
+        const ref = db.collection(`users/${userId}/links`).doc();
+        batch.set(ref, { ...item, order: Date.now() + i });
+      });
+      await batch.commit();
+      renderData();
+    });
+
+    // Export JSON
+    document.getElementById("exportJsonBtn").onclick = async () => {
+      const snap = await db.collection(`users/${userId}/links`).get();
+      const data = snap.docs.map(doc => doc.data());
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "links.json";
+      a.click();
     };
-    importInput.onchange = async e => {
-      const [file] = e.target.files; if (!file) return;
-      const data = JSON.parse(await file.text());
-      for (const x of data) await addDoc(collection(db, `users/${userId}/links`), x);
+
+    // Export TXT
+    document.getElementById("exportTxtBtn").onclick = async () => {
+      const snap = await db.collection(`users/${userId}/links`).get();
+      const data = snap.docs.map(doc => doc.data());
+      const txt = data.map(item => item.type === "link" ? `${item.title}: ${item.url}` : `### ${item.text}`).join("\n");
+      const blob = new Blob([txt], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "links.txt";
+      a.click();
     };
 
     // Theme toggle
-    themeToggle.onclick = () => {
-      currentTheme = currentTheme==="dark" ? "light":"dark";
-      document.body.className = currentTheme==="dark" ? "bg-gray-900 text-white" : "bg-white text-black";
+    document.getElementById("themeSelector").onchange = e => {
+      document.body.className = e.target.value;
+      localStorage.setItem("theme", e.target.value);
+    };
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) document.getElementById("themeSelector").value = savedTheme;
+
+    // Auth
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        userId = user.uid;
+        document.getElementById("loginBtn").classList.add("hidden");
+        document.getElementById("logoutBtn").classList.remove("hidden");
+        document.getElementById("userDisplay").textContent = user.displayName + " (" + user.email + ")";
+        await renderData();
+      } else {
+        userId = null;
+        container.innerHTML = "<p class='text-center text-gray-500'>Please log in to view links.</p>";
+        document.getElementById("loginBtn").classList.remove("hidden");
+        document.getElementById("logoutBtn").classList.add("hidden");
+        document.getElementById("userDisplay").textContent = "";
+      }
+    });
+
+    document.getElementById("loginBtn").onclick = () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider);
+    };
+    document.getElementById("logoutBtn").onclick = () => {
+      auth.signOut();
     };
   </script>
-
-  <!-- Tailwind -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-900 text-white p-6">
-  <header class="text-center mb-6 p-6 bg-gradient-to-r from-purple-600 to-green-600 rounded-lg">
-    <h1 class="text-4xl font-bold">Fancy Link Manager</h1>
-    <div class="mt-4 space-x-2">
-      <button id="loginBtn" class="bg-yellow-400 py-2 px-4 rounded">Login</button>
-      <button id="logoutBtn" class="bg-red-400 py-2 px-4 rounded">Logout</button>
-      <span id="userDisplay"></span>
-      <button id="themeToggle" class="bg-blue-600 py-2 px-4 rounded">Toggle Theme</button>
-    </div>
-  </header>
-
-  <main class="max-w-3xl mx-auto space-y-4">
-    <section class="bg-gray-800 p-4 rounded-lg shadow">
-      <h2 class="text-xl text-yellow-400">Add New Link</h2>
-      <form id="linkForm" class="space-y-2">
-        <input type="text" name="title" placeholder="Title" class="w-full p-2 bg-gray-700 rounded" required />
-        <input type="text" name="url" placeholder="example.com" class="w-full p-2 bg-gray-700 rounded" required />
-        <button class="bg-yellow-400 px-4 py-2 rounded">Add</button>
-      </form>
-    </section>
-
-    <section class="bg-gray-800 p-4 rounded-lg shadow">
-      <h2 class="text-xl text-green-400">Add Heading</h2>
-      <form id="headingForm" class="space-y-2">
-        <input type="text" name="
-        <input type="text" name="text" placeholder="Heading name" class="w-full p-2 bg-gray-700 rounded" required />
-        <button class="bg-green-500 px-4 py-2 rounded">Add Heading</button>
-      </form>
-    </section>
-
-    <section class="bg-gray-800 p-4 rounded-lg shadow">
-      <h2 class="text-xl text-blue-400">📤 Export / 📥 Import</h2>
-      <div class="flex flex-wrap gap-2 mt-2">
-        <button id="exportBtn" class="bg-purple-500 px-4 py-2 rounded">Export JSON</button>
-        <button id="exportTxtBtn" class="bg-indigo-500 px-4 py-2 rounded">Export TXT</button>
-        <label class="bg-teal-500 px-4 py-2 rounded cursor-pointer text-white">
-          Choose JSON File
-          <input id="importInput" type="file" accept=".json" hidden />
-        </label>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="text-xl text-pink-400 mb-2">📁 Your Links</h2>
-      <div id="linkList" class="space-y-2"></div>
-    </section>
-  </main>
-
-  <footer class="text-center text-sm text-gray-400 mt-10">
-    &copy; 2025 Ekram's Fancy Link Manager | Firebase + TailwindCSS
-  </footer>
 </body>
 </html>
+
