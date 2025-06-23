@@ -1,0 +1,64 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #fff;
+  padding: 1em;
+  margin: 0;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+  padding: 1em;
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+header h1 {
+  font-size: 1.6em;
+}
+.add-form, .controls {
+  margin: 1em 0;
+  background: #1e1e1e;
+  padding: 1em;
+  border-radius: 8px;
+}
+input, button {
+  padding: 0.5em;
+  margin: 0.3em;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+}
+button {
+  background-color: #6b46c1;
+  color: #fff;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #8e63e7;
+}
+input[type="file"] {
+  background: #292929;
+  color: #ccc;
+}
+#linkContainer .section {
+  margin: 1em 0;
+  padding: 0.75em;
+  background: #222;
+  border-left: 4px solid #6b46c1;
+  border-radius: 6px;
+}
+.section h3 {
+  margin: 0.5em 0;
+  font-weight: bold;
+}
+.section a {
+  display: block;
+  color: #90caf9;
+  text-decoration: none;
+  margin: 0.3em 0;
+}
+.section a:hover {
+  text-decoration: underline;
+}
