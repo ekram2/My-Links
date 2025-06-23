@@ -1,35 +1,37 @@
-const CACHE_NAME = 'my-important-links-cache-v1';
+ const CACHE_NAME = 'my-links-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/css/style.css',
+  '/js/app.js',
   '/manifest.json',
-  // Add your CSS/JS files here if separate
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
-// Install SW and cache files
-self.addEventListener('install', event => {
+// Install Service Worker
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-  );
-});
-
-// Activate SW and clean old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    )
-  );
-});
-
-// Fetch requests: serve from cache or fetch from network
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(resp => {
-      return resp || fetch(event.request);
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(urlsToCache);
     })
+  );
+});
+
+// Activate
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
+  );
+});
+
+// Fetch Handler
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
