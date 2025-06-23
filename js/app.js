@@ -181,3 +181,13 @@ importInput.addEventListener("change", (e) => {
   };
   reader.readAsText(file);
 });
+
+
+const firebaseConfig = {
+  apiKey: "AIza...",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "12345...",
+  appId: "1:12345:web:abcdef"
+};
