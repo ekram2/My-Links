@@ -1,49 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Important Links</title>
+  <title>📚 My Course & Important Links</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="assets/favicon.ico" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <meta name="theme-color" content="#6b46c1" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.6/dist/forms.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
-  <header>
-    <h1>My Important Links</h1>
-    <button id="loginBtn">Login with Google</button>
-    <button id="logoutBtn" style="display:none;">Logout</button>
-    <button id="toggleTheme">🌗 Toggle Theme</button>
-  </header>
+<body class="bg-gray-900 text-white font-sans">
+  <div class="max-w-5xl mx-auto px-4 py-6">
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold">📌 My Course & Important Links</h1>
+      <div class="flex gap-2 items-center">
+        <span id="userEmail" class="text-sm opacity-75"></span>
+        <button id="signInBtn" class="px-3 py-1 bg-indigo-600 rounded hover:bg-indigo-700">Sign In</button>
+        <button id="signOutBtn" class="px-3 py-1 bg-red-600 rounded hover:bg-red-700 hidden">Sign Out</button>
+        <button id="themeToggle" class="px-2 py-1 border rounded">🌙</button>
+      </div>
+    </header>
 
-  <main>
-    <section class="add-form">
-      <input type="text" id="headingInput" placeholder="Add Folder Title" />
-      <button onclick="addHeading()">➕ Add Folder</button>
-      <input type="text" id="linkTitle" placeholder="Link Title" />
-      <input type="text" id="linkUrl" placeholder="https://example.com" />
-      <button onclick="addLink()">🔗 Add Link</button>
+    <section class="bg-gray-800 p-4 rounded mb-4">
+      <form id="addItemForm" class="grid gap-3 md:grid-cols-2">
+        <input type="text" id="itemTitle" placeholder="Enter title" class="p-2 rounded bg-gray-900 text-white" required />
+        <input type="url" id="itemUrl" placeholder="https://example.com (optional for headings)" class="p-2 rounded bg-gray-900 text-white" />
+        <select id="itemType" class="p-2 rounded bg-gray-900 text-white">
+          <option value="link">🔗 Link</option>
+          <option value="heading">📂 Heading</option>
+        </select>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 rounded text-white px-4 py-2">Add</button>
+      </form>
     </section>
 
-    <section class="controls">
-      <label for="importFile">📂 Choose JSON/TXT File:</label>
-      <input type="file" id="importFile" accept=".json,.txt" />
-      <button onclick="exportData('json')">⬇️ Export JSON</button>
-      <button onclick="exportData('txt')">⬇️ Export TXT</button>
-    </section>
+    <div class="flex flex-wrap gap-2 mb-4">
+      <button id="exportJson" class="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">📤 Export JSON</button>
+      <button id="exportTxt" class="px-3 py-1 bg-purple-600 rounded hover:bg-purple-700">📄 Export TXT</button>
+      <label class="cursor-pointer px-3 py-1 bg-yellow-600 rounded hover:bg-yellow-700">
+        📁 Import JSON
+        <input type="file" id="importJson" accept=".json" class="hidden" />
+      </label>
+    </div>
 
-    <section id="linkContainer"></section>
-  </main>
+    <section id="linksContainer" class="space-y-4"></section>
+  </div>
 
-  <!-- Firebase CDN -->
-<script type="module" src="js/app.js"></script>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
