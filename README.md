@@ -1,24 +1,16 @@
-# 🌐 My Important Links Manager
+# 🔗 Fancy Firebase Link Manager
 
-A beautiful and installable web app to store, organize, and manage your personal or professional links — with Google login, Firebase sync, offline support, drag-and-drop, and import/export.
+A fancy, PWA-enabled link and resource manager with:
 
----
-
-## ✨ Features
-
-- 🔐 Google Sign-In with per-user data sync
-- 🧠 Firebase Firestore storage
-- 📁 Section/Heading support (collapsible folders)
-- 🔗 Click tracking & analytics per link
-- 📥 Import/Export links as JSON or Text
-- 🌗 Light/Dark mode toggle
-- 📲 Installable as a Progressive Web App (PWA)
-- 🔀 Drag-and-drop sorting (headings & links)
-- 💾 Offline mode with local fallback
-- 📱 Responsive mobile-first design
-- 🎨 Fully customizable with Tailwind-like styles
+- 🔐 Google Sign-In
+- 🌐 Firestore sync (per user)
+- 📁 Collapsible folder view (Headings & Links)
+- 📥 Import / 📤 Export (JSON + TXT)
+- 🎨 Light/Dark theme toggle
+- 📲 PWA support (Installable)
+- 🔁 Real-time sync + offline fallback
+- 📊 Click tracking analytics
+- 🧩 Drag & drop link/heading sorting (auto-saved)
 
 ---
- 
-🧠 Author
-Made by @ekram2 — customized with ❤️ and Firebase.
+
