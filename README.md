@@ -19,17 +19,6 @@ A beautiful and installable web app to store, organize, and manage your personal
 - 🎨 Fully customizable with Tailwind-like styles
 
 ---
-
-## 📁 Folder Structure
-My-Course-Link/
-├── index.html
-├── manifest.json
-├── service-worker.js
-├── icon-192.png
-├── icon-512.png
-├── README.md
-├── css/
-│ └── style.css
-├── js/
-│ └── app.js
-
+ 
+🧠 Author
+Made by @ekram2 — customized with ❤️ and Firebase.
