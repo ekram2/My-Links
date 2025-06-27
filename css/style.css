@@ -1,64 +1,61 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #121212;
-  color: #fff;
-  padding: 1em;
-  margin: 0;
+body[data-theme="dark"] {
+  background-color: #111827;
+  color: white;
 }
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1em;
-  padding: 1em;
-  background-color: #2d2d2d;
-  color: #ffffff;
+
+body[data-theme="light"] {
+  background-color: #f9fafb;
+  color: #111827;
 }
-header h1 {
-  font-size: 1.6em;
+
+button, input, select {
+  transition: all 0.2s ease;
 }
-.add-form, .controls {
-  margin: 1em 0;
-  background: #1e1e1e;
-  padding: 1em;
+
+.collapsible-folder {
+  background-color: #1f2937;
   border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-input, button {
-  padding: 0.5em;
-  margin: 0.3em;
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
+
+.collapsible-folder[data-collapsed="true"] .folder-contents {
+  display: none;
 }
-button {
-  background-color: #6b46c1;
-  color: #fff;
-  cursor: pointer;
+
+.drag-over {
+  outline: 2px dashed #4f46e5;
+  outline-offset: 4px;
 }
-button:hover {
-  background-color: #8e63e7;
-}
-input[type="file"] {
-  background: #292929;
-  color: #ccc;
-}
-#linkContainer .section {
-  margin: 1em 0;
-  padding: 0.75em;
-  background: #222;
-  border-left: 4px solid #6b46c1;
+
+.item-card {
+  background-color: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 6px;
+  padding: 12px 16px;
+  cursor: move;
 }
-.section h3 {
-  margin: 0.5em 0;
-  font-weight: bold;
+
+.item-card:hover {
+  background-color: #3f3f46;
 }
-.section a {
-  display: block;
-  color: #90caf9;
-  text-decoration: none;
-  margin: 0.3em 0;
+
+a.link-url {
+  color: #93c5fd;
+  word-break: break-all;
 }
-.section a:hover {
-  text-decoration: underline;
+
+a.link-url:hover {
+  color: #60a5fa;
+}
+
+.delete-btn {
+  background: #ef4444;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  float: right;
+  color: white;
+  cursor: pointer;
 }
