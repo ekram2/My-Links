@@ -18,6 +18,7 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
+// 🔧 Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAN2qRU0gKNNRbsQ1LX688WRHiWP-vQ2hk",
   authDomain: "link-manager-71f12.firebaseapp.com",
@@ -26,7 +27,6 @@ const firebaseConfig = {
   messagingSenderId: "950228225273",
   appId: "1:950228225273:web:33fc9a192460810d032628"
 };
-
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
@@ -52,6 +52,16 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("signInBtn").classList.remove("hidden");
     document.getElementById("signOutBtn").classList.add("hidden");
     linksContainer.innerHTML = "";
+
+    // 🔁 Offline fallback
+    const last = localStorage.getItem("lastItem");
+    if (last) {
+      try {
+        renderItems([JSON.parse(last)]);
+      } catch (err) {
+        console.log("❌ Error loading local item:", err);
+      }
+    }
   }
 });
 
@@ -81,17 +91,26 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   document.getElementById("addItemForm").reset();
 });
 
-// Listen for changes
+// Firestore sync listener
 function listenToItems() {
-  onSnapshot(userRef, (snapshot) => {
-    const items = [];
-    snapshot.forEach((doc) => items.push(doc.data()));
-    items.sort((a, b) => parseInt(a.order) - parseInt(b.order));
-    renderItems(items);
-  });
+  if (!userRef) return;
+  console.log("📡 Listening to Firestore...");
+
+  onSnapshot(userRef,
+    (snapshot) => {
+      const items = [];
+      snapshot.forEach((doc) => items.push(doc.data()));
+      items.sort((a, b) => parseInt(a.order) - parseInt(b.order));
+      renderItems(items);
+    },
+    (error) => {
+      console.error("❌ Firestore error:", error.message);
+      alert("Firestore sync failed. Check rules or connection.");
+    }
+  );
 }
 
-// Render function
+// Render items
 function renderItems(items) {
   linksContainer.innerHTML = "";
   items.forEach((item) => {
@@ -106,6 +125,7 @@ function renderItems(items) {
     linksContainer.appendChild(el);
   });
 
+  // Delete handler
   document.querySelectorAll(".delete-btn").forEach((btn) =>
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -113,11 +133,10 @@ function renderItems(items) {
     })
   );
 
-  // Drag-and-drop
   enableDrag();
 }
 
-// Drag & drop handler
+// Drag & drop
 function enableDrag() {
   let dragged;
   document.querySelectorAll(".item-card").forEach((el) => {
@@ -141,6 +160,7 @@ function enableDrag() {
         linksContainer.insertBefore(dragged, el);
       }
 
+      // Save new order
       const reordered = [...linksContainer.children].map((el, index) => ({
         id: el.dataset.id,
         order: index,
@@ -148,30 +168,25 @@ function enableDrag() {
 
       for (const { id, order } of reordered) {
         if (currentUser) {
-          await setDoc(
-            doc(userRef, id),
-            { order },
-            { merge: true }
-          );
+          await setDoc(doc(userRef, id), { order }, { merge: true });
         }
       }
     });
   });
 }
 
-// Export/Import
+// Export JSON
 document.getElementById("exportJson").onclick = async () => {
   const snapshot = await getDocs(userRef);
   const items = snapshot.docs.map((doc) => doc.data());
-  const blob = new Blob([JSON.stringify(items, null, 2)], {
-    type: "application/json",
-  });
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "links.json";
   a.click();
 };
 
+// Export TXT
 document.getElementById("exportTxt").onclick = async () => {
   const snapshot = await getDocs(userRef);
   const lines = snapshot.docs.map((doc) => {
@@ -185,6 +200,7 @@ document.getElementById("exportTxt").onclick = async () => {
   a.click();
 };
 
+// Import JSON
 document.getElementById("importJson").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -198,7 +214,7 @@ document.getElementById("importJson").addEventListener("change", (e) => {
         }
       }
     } catch (err) {
-      alert("Invalid file");
+      alert("Invalid JSON file");
     }
   };
   reader.readAsText(file);
@@ -213,7 +229,7 @@ document.getElementById("themeToggle").addEventListener("click", () => {
   localStorage.setItem("theme", next);
 });
 
-// Apply saved theme
+// Auto-apply theme
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("theme");
   if (saved) {
