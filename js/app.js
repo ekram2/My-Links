@@ -19,13 +19,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCdJTZeYeb09zAQgmbZj4n5-CbeiL8NrHM",
-  authDomain: "link-manager-2bf48.firebaseapp.com",
-  projectId: "link-manager-2bf48",
-  storageBucket: "link-manager-2bf48.firebasestorage.app",
-  messagingSenderId: "836962375470",
-  appId: "1:836962375470:web:16a563fd9318c6f65b8cbf",
+  apiKey: "AIzaSyAN2qRU0gKNNRbsQ1LX688WRHiWP-vQ2hk",
+  authDomain: "link-manager-71f12.firebaseapp.com",
+  projectId: "link-manager-71f12",
+  storageBucket: "link-manager-71f12.firebasestorage.app",
+  messagingSenderId: "950228225273",
+  appId: "1:950228225273:web:33fc9a192460810d032628"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
