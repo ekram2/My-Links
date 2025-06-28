@@ -1,7 +1,7 @@
  const CACHE_NAME = 'my-links-cache-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
+  '/My-Link.html',
   '/css/style.css',
   '/js/app.js',
   '/manifest.json',
