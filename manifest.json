@@ -2,7 +2,7 @@
   "name": "My Important Links",
   "short_name": "Link Manager",
   "description": "A fancy Firebase-powered link manager with sync, themes, and export/import.",
-  "start_url": "./index.html",
+  "start_url": "/My-Links/My-Link.html"
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#4f46e5",
