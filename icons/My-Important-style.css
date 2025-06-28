@@ -1,0 +1,25 @@
+body{
+    /* margin: 0px;
+    padding: 0px; */
+    background: rgb(87, 96, 162);
+    font-style: oblique
+};
+.Title {
+    background-color: rgb(179, 76, 76);
+}
+
+.list {
+    display: flex;
+    justify-content:space-evenly;
+    align-items: center;
+    
+    
+};
+.hover list{
+    background-color: aqua;
+}
+.btn {
+    background-color: rgb(230, 229, 229);
+    
+};
+
