@@ -18,7 +18,6 @@ import {
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-// 🔧 Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAN2qRU0gKNNRbsQ1LX688WRHiWP-vQ2hk",
   authDomain: "link-manager-71f12.firebaseapp.com",
@@ -53,7 +52,6 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("signOutBtn").classList.add("hidden");
     linksContainer.innerHTML = "";
 
-    // 🔁 Offline fallback
     const last = localStorage.getItem("lastItem");
     if (last) {
       try {
@@ -68,7 +66,6 @@ onAuthStateChanged(auth, (user) => {
 document.getElementById("signInBtn").onclick = () => signInWithPopup(auth, provider);
 document.getElementById("signOutBtn").onclick = () => signOut(auth);
 
-// Add item
 document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const title = document.getElementById("itemTitle").value.trim();
@@ -77,6 +74,8 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   if (!title) return;
 
   const id = Date.now().toString();
+  const color = type === "heading" ? getRandomColor() : "";
+
   const data = {
     id,
     title,
@@ -84,6 +83,7 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
     type,
     order: id,
     createdAt: serverTimestamp(),
+    color,
   };
 
   localStorage.setItem("lastItem", JSON.stringify(data));
@@ -91,11 +91,17 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   document.getElementById("addItemForm").reset();
 });
 
-// Firestore sync listener
+function getRandomColor() {
+  const colors = [
+    "#6EE7B7", "#FCD34D", "#FCA5A5", "#93C5FD",
+    "#E879F9", "#FDE68A", "#A5B4FC", "#F9A8D4",
+    "#BFDBFE", "#86EFAC", "#FECDD3"
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
 function listenToItems() {
   if (!userRef) return;
-  console.log("📡 Listening to Firestore...");
-
   onSnapshot(userRef,
     (snapshot) => {
       const items = [];
@@ -110,7 +116,6 @@ function listenToItems() {
   );
 }
 
-// Render items
 function renderItems(items) {
   linksContainer.innerHTML = "";
   items.forEach((item) => {
@@ -118,14 +123,17 @@ function renderItems(items) {
     el.className = "item-card flex justify-between items-center";
     el.setAttribute("draggable", "true");
     el.setAttribute("data-id", item.id);
-    el.innerHTML =
-      item.type === "heading"
-        ? `<strong>${item.title}</strong><span class="delete-btn" data-id="${item.id}">✕</span>`
-        : `<div><a href="${item.url}" target="_blank" class="link-url">${item.title}</a></div><span class="delete-btn" data-id="${item.id}">✕</span>`;
+
+    if (item.type === "heading") {
+      el.style.backgroundColor = item.color || "#1f2937";
+      el.innerHTML = `<strong>${item.title}</strong><span class="delete-btn" data-id="${item.id}">✕</span>`;
+    } else {
+      el.innerHTML = `<div><a href="${item.url}" target="_blank" class="link-url">${item.title}</a></div><span class="delete-btn" data-id="${item.id}">✕</span>`;
+    }
+
     linksContainer.appendChild(el);
   });
 
-  // Delete handler
   document.querySelectorAll(".delete-btn").forEach((btn) =>
     btn.addEventListener("click", async (e) => {
       const id = e.target.dataset.id;
@@ -136,7 +144,6 @@ function renderItems(items) {
   enableDrag();
 }
 
-// Drag & drop
 function enableDrag() {
   let dragged;
   document.querySelectorAll(".item-card").forEach((el) => {
@@ -160,7 +167,6 @@ function enableDrag() {
         linksContainer.insertBefore(dragged, el);
       }
 
-      // Save new order
       const reordered = [...linksContainer.children].map((el, index) => ({
         id: el.dataset.id,
         order: index,
@@ -175,7 +181,6 @@ function enableDrag() {
   });
 }
 
-// Export JSON
 document.getElementById("exportJson").onclick = async () => {
   const snapshot = await getDocs(userRef);
   const items = snapshot.docs.map((doc) => doc.data());
@@ -186,7 +191,6 @@ document.getElementById("exportJson").onclick = async () => {
   a.click();
 };
 
-// Export TXT
 document.getElementById("exportTxt").onclick = async () => {
   const snapshot = await getDocs(userRef);
   const lines = snapshot.docs.map((doc) => {
@@ -200,7 +204,6 @@ document.getElementById("exportTxt").onclick = async () => {
   a.click();
 };
 
-// Import JSON
 document.getElementById("importJson").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -220,7 +223,6 @@ document.getElementById("importJson").addEventListener("change", (e) => {
   reader.readAsText(file);
 });
 
-// Theme toggle
 document.getElementById("themeToggle").addEventListener("click", () => {
   const html = document.documentElement;
   const current = html.getAttribute("data-theme");
@@ -229,7 +231,6 @@ document.getElementById("themeToggle").addEventListener("click", () => {
   localStorage.setItem("theme", next);
 });
 
-// Auto-apply theme
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("theme");
   if (saved) {
