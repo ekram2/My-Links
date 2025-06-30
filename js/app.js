@@ -1,21 +1,10 @@
 // js/app.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
+  getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut,
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 import {
-  getFirestore,
-  collection,
-  doc,
-  setDoc,
-  getDocs,
-  deleteDoc,
-  onSnapshot,
-  serverTimestamp,
+  getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -34,8 +23,12 @@ const provider = new GoogleAuthProvider();
 
 let currentUser = null;
 let userRef = null;
-
 const linksContainer = document.getElementById("linksContainer");
+
+const getRandomColor = () => {
+  const colors = ["#f43f5e", "#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6"];
+  return colors[Math.floor(Math.random() * colors.length)];
+};
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -57,7 +50,7 @@ onAuthStateChanged(auth, (user) => {
       try {
         renderItems([JSON.parse(last)]);
       } catch (err) {
-        console.log("❌ Error loading local item:", err);
+        console.error("❌ Error loading local item:", err);
       }
     }
   }
@@ -74,7 +67,7 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   if (!title) return;
 
   const id = Date.now().toString();
-  const color = type === "heading" ? getRandomColor() : "";
+  const color = type === "heading" ? getRandomColor() : null;
 
   const data = {
     id,
@@ -82,8 +75,8 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
     url: url ? (url.startsWith("http") ? url : "https://" + url) : "",
     type,
     order: id,
-    createdAt: serverTimestamp(),
     color,
+    createdAt: serverTimestamp(),
   };
 
   localStorage.setItem("lastItem", JSON.stringify(data));
@@ -91,29 +84,14 @@ document.getElementById("addItemForm").addEventListener("submit", async (e) => {
   document.getElementById("addItemForm").reset();
 });
 
-function getRandomColor() {
-  const colors = [
-    "#6EE7B7", "#FCD34D", "#FCA5A5", "#93C5FD",
-    "#E879F9", "#FDE68A", "#A5B4FC", "#F9A8D4",
-    "#BFDBFE", "#86EFAC", "#FECDD3"
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
-}
-
 function listenToItems() {
   if (!userRef) return;
-  onSnapshot(userRef,
-    (snapshot) => {
-      const items = [];
-      snapshot.forEach((doc) => items.push(doc.data()));
-      items.sort((a, b) => parseInt(a.order) - parseInt(b.order));
-      renderItems(items);
-    },
-    (error) => {
-      console.error("❌ Firestore error:", error.message);
-      alert("Firestore sync failed. Check rules or connection.");
-    }
-  );
+  onSnapshot(userRef, (snapshot) => {
+    const items = [];
+    snapshot.forEach((doc) => items.push(doc.data()));
+    items.sort((a, b) => parseInt(a.order) - parseInt(b.order));
+    renderItems(items);
+  });
 }
 
 function renderItems(items) {
@@ -125,11 +103,14 @@ function renderItems(items) {
     el.setAttribute("data-id", item.id);
 
     if (item.type === "heading") {
-      el.style.backgroundColor = item.color || "#1f2937";
-      el.innerHTML = `<strong>${item.title}</strong><span class="delete-btn" data-id="${item.id}">✕</span>`;
-    } else {
-      el.innerHTML = `<div><a href="${item.url}" target="_blank" class="link-url">${item.title}</a></div><span class="delete-btn" data-id="${item.id}">✕</span>`;
+      if (item.color) el.style.backgroundColor = item.color;
+      el.style.color = "#fff";
     }
+
+    el.innerHTML =
+      item.type === "heading"
+        ? `<strong>${item.title}</strong><span class="delete-btn" data-id="${item.id}">✕</span>`
+        : `<div><a href="${item.url}" target="_blank" class="link-url">${item.title}</a></div><span class="delete-btn" data-id="${item.id}">✕</span>`;
 
     linksContainer.appendChild(el);
   });
@@ -212,9 +193,7 @@ document.getElementById("importJson").addEventListener("change", (e) => {
     try {
       const data = JSON.parse(evt.target.result);
       for (const item of data) {
-        if (currentUser) {
-          await setDoc(doc(userRef, item.id), item);
-        }
+        if (currentUser) await setDoc(doc(userRef, item.id), item);
       }
     } catch (err) {
       alert("Invalid JSON file");
