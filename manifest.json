@@ -1,8 +1,8 @@
 {
   "name": "Link Manager Pro",
   "short_name": "LinkPro",
-  "description": "Organize, analyze, and access your links smarter with Link Manager Pro.",
-  "start_url": "/My-Links/My-Link.html",
+  "description": "Smarter link organization with sync, export, and PWA support.",
+  "start_url": "/My-Link.html",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#4f46e5",
