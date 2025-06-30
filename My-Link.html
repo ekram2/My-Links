@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📚 My Course & Important Links</title>
+  <title>📌 Link Manager Pro!</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon-192.png" type="image/png" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.6/dist/forms.min.css">
@@ -12,19 +12,22 @@
 </head>
 <body class="bg-gray-900 text-white font-sans">
   <div class="max-w-5xl mx-auto px-4 py-6">
-    <header class="flex justify-between items-center mb-6">
-     <h1 class="text-3xl font-bold">📌 Link Manager Pro!</h1>
-       <p class="text-sm text-gray-400 -mt-2">Organize, analyze, and access your links smarter</p>
-      <div class="flex gap-2 items-center">
-        <span id="userEmail" class="text-sm opacity-75"></span>
-        <button id="signInBtn" class="px-3 py-1 bg-indigo-600 rounded hover:bg-indigo-700">Sign In</button>
-        <button id="signOutBtn" class="px-3 py-1 bg-red-600 rounded hover:bg-red-700 hidden">Sign Out</button>
-        <button id="themeToggle" class="px-2 py-1 border rounded">🌙</button>
-      </div>
-      
 
+    <!-- 🔥 Centered Heading + Subtitle -->
+    <header class="text-center mb-8">
+      <h1 class="text-4xl font-extrabold mb-2">📌 Link Manager Pro</h1>
+      <p class="text-gray-400 text-lg">Organize, analyze, and access your links smarter</p>
     </header>
 
+    <!-- Auth + Theme Buttons -->
+    <div class="flex justify-end gap-2 items-center mb-6">
+      <span id="userEmail" class="text-sm opacity-75"></span>
+      <button id="signInBtn" class="px-3 py-1 bg-indigo-600 rounded hover:bg-indigo-700">Sign In</button>
+      <button id="signOutBtn" class="px-3 py-1 bg-red-600 rounded hover:bg-red-700 hidden">Sign Out</button>
+      <button id="themeToggle" class="px-2 py-1 border rounded">🌙</button>
+    </div>
+
+    <!-- Add Item Form -->
     <section class="bg-gray-800 p-4 rounded mb-4">
       <form id="addItemForm" class="grid gap-3 md:grid-cols-2">
         <input type="text" id="itemTitle" placeholder="Enter title" class="p-2 rounded bg-gray-900 text-white" required />
@@ -37,6 +40,7 @@
       </form>
     </section>
 
+    <!-- Export / Import Buttons -->
     <div class="flex flex-wrap gap-2 mb-4">
       <button id="exportJson" class="px-3 py-1 bg-blue-600 rounded hover:bg-blue-700">📤 Export JSON</button>
       <button id="exportTxt" class="px-3 py-1 bg-purple-600 rounded hover:bg-purple-700">📄 Export TXT</button>
@@ -46,9 +50,11 @@
       </label>
     </div>
 
+    <!-- Dynamic Items -->
     <section id="linksContainer" class="space-y-4"></section>
   </div>
 
+  <!-- JS Logic -->
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
