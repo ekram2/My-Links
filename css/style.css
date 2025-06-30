@@ -1,3 +1,5 @@
+/* css/style.css */
+
 body[data-theme="dark"] {
   background-color: #111827;
   color: white;
@@ -8,25 +10,10 @@ body[data-theme="light"] {
   color: #111827;
 }
 
-button, input, select {
+button,
+input,
+select {
   transition: all 0.2s ease;
-}
-
-.collapsible-folder {
-  background-color: #1f2937;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.collapsible-folder[data-collapsed="true"] .folder-contents {
-  display: none;
-}
-
-.drag-over {
-  outline: 2px dashed #4f46e5;
-  outline-offset: 4px;
 }
 
 .item-card {
@@ -43,7 +30,7 @@ button, input, select {
 
 a.link-url {
   color: #93c5fd;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 a.link-url:hover {
@@ -55,7 +42,44 @@ a.link-url:hover {
   padding: 4px 10px;
   border-radius: 4px;
   font-size: 0.85rem;
-  float: right;
   color: white;
   cursor: pointer;
+}
+
+.drag-over {
+  outline: 2px dashed #4f46e5;
+  outline-offset: 4px;
+}
+
+/* Heading (folder) color variations */
+.heading-colored {
+  font-weight: bold;
+  border-left: 6px solid;
+  padding-left: 12px;
+  margin-bottom: 0.25rem;
+}
+
+/* Header and description styling */
+.hero-title {
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.hero-desc {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-desc {
+    font-size: 1.125rem;
+  }
 }
